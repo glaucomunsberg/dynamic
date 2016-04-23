@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 class Configuration:
 
 	_instance 		= None
@@ -16,13 +15,14 @@ class Configuration:
 		return cls._instance
 
 	def __init__(self):
-
-		# Size Square
 		self.size_puzzle	= 3
-		self.size_shake		= 1000
+		self.size_shake		= 100
 		self.number_of_tiles = (self.size_puzzle*self.size_puzzle) - 1
 
+	# Method used to print the configuration
+	#	used on configuration
 	def printConfiguration(self):
-
-		print "Puzzle Size			",self.size_puzzle
-		print "Number of Tiles		",self.number_of_tiles
+		print "Property				| Value"
+		print " Puzzle Size			  ",self.size_puzzle
+		print " Number of Tiles		  ",self.number_of_tiles
+		print " Number of Shakes	  ",self.size_shake

@@ -8,6 +8,8 @@ class Interface:
     _config	    = None
     _topDecoration = None
 
+    # initialize the decoration used
+    #   around the numbers.
     def __init__(self):
         self._config    = Configuration()
         self._topDecoration = "┌"
@@ -33,15 +35,23 @@ class Interface:
             self._lineDecoration += "─────┤"
 
 
+    # print the matrix
+    #   interate the matrix and for any point
+    #   the decoration around will be created
+    #   return: none
     def printMatrix(self,puzzle):
         print self._topDecoration
         for i in range(len(puzzle)):
             if i != 0:
                 print self._lineDecoration
-            print self.lineToPrint(puzzle[i])
+            print self._lineToPrint(puzzle[i])
         print self._buttonDecoration
 
-    def lineToPrint(self,listToInterate):
+    # line to print
+    #   check the position and put at both sides
+    #   the decoration
+    #   return: none
+    def _lineToPrint(self,listToInterate):
         self._lineDataDecoration = "│"
         for i in range(len(listToInterate)):
             if self._config.size_puzzle > 3:
