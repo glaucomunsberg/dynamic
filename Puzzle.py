@@ -9,6 +9,7 @@ from copy import copy, deepcopy
 class Puzzle:
     _config	        = None
     _matrix         = None
+    _hash           = None
     _matrixFinal    = None
     _interface      = None
     _numberOfInteractions = None
@@ -26,6 +27,7 @@ class Puzzle:
     #   to be references about the end position
     #   return: none
     def createMatrix(self):
+        self._hash          = {}
         self._matrix        = [[0 for x in range(self._config.size_puzzle)] for x in range(self._config.size_puzzle)]
         self._matrixFinal   = [[0 for x in range(self._config.size_puzzle)] for x in range(self._config.size_puzzle)]
 
@@ -40,6 +42,13 @@ class Puzzle:
                     self._matrix[i][j] = value
                     self._matrixFinal[i][j] = value
                 value+=1
+
+    def getMatrixInt(self,matrix):
+        valueString = ""
+        for i in range(self._config.size_puzzle):
+            for j in range(self._config.size_puzzle):
+                valueString += str(matrix[i][j])
+        return int(valueString)
 
     def setMatrix(self,matrix):
         self._matrix = matrix
@@ -144,6 +153,7 @@ class Puzzle:
         return matrix == self._matrixFinal
 
 
+    # Algoritm Breadth-first search
     def BFS(self,matrix):
         self._numberOfInteractions = 0
         self._biggestSize = 1
@@ -162,12 +172,25 @@ class Puzzle:
                 print self._numberOfInteractions
                 print 'Biggest Size'
                 print self._biggestSize
-                return  self._matrix
+                return  matrixAtual
             else:
-                neighbors = self.possiblesPositionsOnMatrix(matrixAtual)
-                for i in range(len(neighbors)):
-                    q.push(neighbors[i])
+                newKey = self.getMatrixInt(matrixAtual)
+                print 'key', newKey
+                #print 'Visitando...'
+                #neighbors = self.possiblesPositionsOnMatrix(matrixAtual)
+                #for i in range(len(neighbors)):
+                #    q.push(neighbors[i])
+                if self._hash.get(newKey,0) == 0:
+                    self._hash[newKey] = True
+                    print 'Visitando...'
+                    neighbors = self.possiblesPositionsOnMatrix(matrixAtual)
+                    for i in range(len(neighbors)):
+                        q.push(neighbors[i])
+                else:
+                    print 'Já visitado!'
 
+
+    # Algoritm depth-first search
     def DFS(self, matrix,depth):
         self._numberOfInteractions = 0
         self._biggestSize = 1
@@ -207,6 +230,7 @@ class Puzzle:
         #print 'Biggest Size'
         return []
 
+    # Algoritm Iterative deepening depth-first search
     def IDS(self,matrix):
         i = 1
         s = self.DFS(matrix,i)

@@ -62,3 +62,12 @@ class Interface:
             else:
                 self._lineDataDecoration += "  "+str(listToInterate[i])+"  │"
         return self._lineDataDecoration
+
+    def printXO(self,matrix):
+        print "             "
+        print "   "+str(matrix[0][0])+"  │  "+str(matrix[0][1])+"  │  "+str(matrix[0][2])+""
+        print " ─────┼─────┼───── "
+        print "   "+str(matrix[1][0])+"  │  "+str(matrix[1][1])+"  │  "+str(matrix[1][2])+""
+        print " ─────┼─────┼───── "
+        print "   "+str(matrix[2][0])+"  │  "+str(matrix[2][1])+"  │  "+str(matrix[2][2])+""
+        print "             "
