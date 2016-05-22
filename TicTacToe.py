@@ -158,10 +158,10 @@ class TicTacToe:
         self._tree = Node(deepcopy(self._matrix),[],'max',0)
         self.createSubNodes(self._tree)
         self.checkNode(self._tree)
-        print 'number of winners'
-        print 'player 1',self._winners[0]
-        print 'player 2',self._winners[1]
-        print 'tree value',self._tree.value
+        print 'Number of winners'
+        print ' player 1',self._winners[0]
+        print ' player 2',self._winners[1]
+        print 'Root Value',self._tree.value
 
 
 

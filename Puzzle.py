@@ -152,6 +152,39 @@ class Puzzle:
     def isFinalPosition(self,matrix):
         return matrix == self._matrixFinal
 
+    def manhattanDistance(self,matrix):
+        sumDistance = 0
+        for i in range(self._config.size_puzzle):
+            for j in range(self._config.size_puzzle):
+                endPosition = self._endPositionFrom(matrix[i][j])
+                quoPosition = [i,j]
+                #print '\nvalue',matrix[i][j]
+                #print 'quoPos',quoPosition
+                #print 'endPos',endPosition
+                calculate   = abs(quoPosition[0] - endPosition[0]) + abs(quoPosition[1] - endPosition[1])
+                #print 'calcul',calculate
+                sumDistance += calculate
+        return sumDistance
+
+    def _endPositionFrom(self,numeric):
+        if numeric == 0:
+            return [2,2]
+        elif numeric == 1:
+            return [0,0]
+        elif numeric == 2:
+            return [0,1]
+        elif numeric == 3:
+            return [0,2]
+        elif numeric == 4:
+            return [1,0]
+        elif numeric == 5:
+            return [1,1]
+        elif numeric == 6:
+            return [1,2]
+        elif numeric == 7:
+            return [2,0]
+        else:
+            return [2,1]
 
     # Algoritm Breadth-first search
     def BFS(self,matrix):
@@ -243,3 +276,40 @@ class Puzzle:
         print i
         print 'Result:'
         return s
+
+    def Astar(self,matrix):
+        query = []
+        depth=0
+        weight = self.manhattanDistance(matrix)+depth
+        node = Node(matrix,weight,0)
+        query.append(node)
+        while query != []:
+            smallerWeight = 0
+            node = None
+            for i in range(len(query)):
+                if i == 0:
+                    smallerWeight = query[0].weight
+                    node = query[0]
+                else:
+                    if smallerWeight > query[i].weight:
+                        smallerWeight = query[i].weight
+                        node = query[i]
+            query.remove(node)
+            #print 'node.matrix',node.matrix
+            #print 'node.weight',node.weight
+            #print 'node.depth ',node.depth
+            if self.isFinalPosition(node.matrix):
+                return node.matrix
+            else:
+                #print 'next...'
+                possibles = self.possiblesPositionsOnMatrix(node.matrix)
+                for i in range(len(possibles)):
+                    weight = self.manhattanDistance(possibles[i]) + node.depth
+                    query.append(Node(possibles[i],weight,node.depth+1))
+        return []
+
+class Node(object):
+    def __init__(self, matrix=None,weight=0,depth=0):
+        self.matrix = matrix
+        self.weight = weight
+        self.depth  = depth

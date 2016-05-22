@@ -17,9 +17,6 @@ if __name__ == "__main__":
     puzzle.createMatrix()
     puzzle.printMatrix(puzzle.getMatrix())
 
-    print 'Shake times'
-    print config.size_shake
-
     print 'After shake'
     puzzle.shakeMatrix(puzzle.getMatrix())
     puzzle.printMatrix(puzzle.getMatrix())
@@ -66,7 +63,7 @@ if __name__ == "__main__":
             print 'A*  running at',elapsed,'seconds'
         elif mode == 5:
             start = time.time()
-            print puzzle.IDS(puzzle.getMatrix())
+            ticTacToe.playTicTacToe()
             end = time.time()
             elapsed = end - start
             print 'TicTacToe running at',elapsed,'seconds'

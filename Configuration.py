@@ -9,6 +9,9 @@ class Configuration:
 	size_puzzle 	= None
 	size_shake		= None
 
+	#Test
+	times_tests		= None
+
 	def __new__(cls, *args, **kwargs):
 		if not cls._instance:
 			cls._instance = super(Configuration, cls).__new__(cls, *args, **kwargs)
@@ -19,6 +22,8 @@ class Configuration:
 		self.size_shake		= 10
 		self.number_of_tiles = (self.size_puzzle*self.size_puzzle) - 1
 
+		self.times_tests = 1
+
 	# Method used to print the configuration
 	#	used on configuration
 	def printConfiguration(self):
@@ -26,3 +31,4 @@ class Configuration:
 		print " Puzzle Size			  ",self.size_puzzle
 		print " Number of Tiles		  ",self.number_of_tiles
 		print " Number of Shakes	  ",self.size_shake
+		print " Number of Tests       ",self.times_tests
