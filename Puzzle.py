@@ -277,6 +277,16 @@ class Puzzle:
         print 'Result:'
         return s
 
+
+    #1 Inicialize Q com o nó de busca (S) como única entrada;
+    #2 Se Q está vazio, interrompa. Se não, escolha o melhor elemento de Q;
+    #3 Se o estado (n) é um objetivo, retorne n;
+    #4 (De outro modo) Remova n de Q;
+    #5 Encontre os descendentes do estado (n) que não estão em visitados e crie todas as extensões de n para cada descendente;
+    #6 Adicione os caminhos estendidos a Q e vá ao passo 2;
+    #
+    # Heurística f(n) = g(n) + h(n), em que g(n) é o custo do caminho desde o estado inicial ao estado representado no nó n; e h(n) é a estimativa do custo do melhor caminho que liga o nó n ao estado final.
+    # h(n) = manhattanDistance
     def Astar(self,matrix):
         query = []
         depth=0

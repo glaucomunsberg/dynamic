@@ -4,6 +4,7 @@
 from Puzzle import Puzzle
 from Configuration import Configuration
 from TicTacToe import TicTacToe
+from SimpleJungle import SimpleJungle
 import time
 
 if __name__ == "__main__":
@@ -11,6 +12,7 @@ if __name__ == "__main__":
     puzzle = Puzzle()
     config = Configuration()
     ticTacToe = TicTacToe()
+    simpleJungle = SimpleJungle()
 
     # Puzzle inicialization
     print 'Matrix'
@@ -34,6 +36,9 @@ if __name__ == "__main__":
     print ' 4 - A*'
     print 'Tic-Tac-Toe'
     print ' 5 - Play MinMax'
+    print 'Simple Jungle'
+    print ' 6 - Single player'
+    print ' 7 - Two Player'
 
     try:
         mode=int(raw_input('Algoritm Number:'))
@@ -67,6 +72,18 @@ if __name__ == "__main__":
             end = time.time()
             elapsed = end - start
             print 'TicTacToe running at',elapsed,'seconds'
+        elif mode == 6:
+            start = time.time()
+            simpleJungle.singlePlayer()
+            end = time.time()
+            elapsed = end - start
+            print 'Simple Jungle running at',elapsed,'seconds'
+        elif mode == 7:
+            start = time.time()
+            simpleJungle.twoPlayer()
+            end = time.time()
+            elapsed = end - start
+            print 'Simple Jungle running at',elapsed,'seconds'
         else:
             print 'Option',mode,'is not allowed'
     except ValueError:

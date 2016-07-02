@@ -47,6 +47,50 @@ class Interface:
             print self._lineToPrint(puzzle[i])
         print self._buttonDecoration
 
+    def printJungle(self,matrix):
+
+        self._topDescription = "   "
+        self._topDecoration = "  ┌"
+        self._buttonDecoration = "  └"
+        self._lineDecoration = "  ├"
+        self._lineDataDecoration = "│"
+
+        for i in range(self._config.size_jungle-1):
+            self._topDescription+="  "+str(i)+"    "
+            self._topDecoration+="──────┬"
+            self._buttonDecoration += "──────┴"
+            self._lineDecoration += "──────┼"
+
+        #last element
+        self._topDescription+="  "+str(i+1)+"    "
+
+        self._topDecoration+="──────┐"
+        self._buttonDecoration += "──────┘"
+        self._lineDecoration += "──────┤"
+
+        print self._topDescription
+        print self._topDecoration
+        for i in range(len(matrix)):
+            label = ''
+            if i == 0:
+                label = 'A'
+            elif i == 1:
+                label = 'B'
+            elif i == 2:
+                label = 'C'
+            elif i == 3:
+                label = 'D'
+            elif i == 4:
+                label = 'E'
+            elif i == 5:
+                label = 'F'
+            elif i == 6:
+                label = 'G'
+            if i != 0:
+                print self._lineDecoration
+            print label+" "+self._lineToPrint(matrix[i])
+        print self._buttonDecoration
+
     # line to print
     #   check the position and put at both sides
     #   the decoration

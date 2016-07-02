@@ -20,9 +20,10 @@ class Configuration:
 	def __init__(self):
 		self.size_puzzle	= 3
 		self.size_shake		= 10
+		self.size_jungle	= 7
 		self.number_of_tiles = (self.size_puzzle*self.size_puzzle) - 1
 
-		self.times_tests = 1
+		self.times_tests = 2
 
 	# Method used to print the configuration
 	#	used on configuration
