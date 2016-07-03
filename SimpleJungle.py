@@ -4,8 +4,6 @@ from Interface import Interface
 from SimpleJungleHelpers import *
 import os, copy
 
-
-
 class SimpleJungle:
     _config	        = None
     _burrowConfig   = None
@@ -24,7 +22,7 @@ class SimpleJungle:
         self._state = State()
 
         #self._interface.printJungle(self._state.matrix)
-        #print self._state.statusHash()
+        print self._state.statusHash()
 
 
 
@@ -60,7 +58,7 @@ class SimpleJungle:
 
                 someone_win = True
 
-                if self._jungleConfig.howPlay()['is_human']
+                if self._jungleConfig.howPlay()['is_human']:
                     self._interface.winnerHummanView(player_winner)
                 else:
                     self._interface.winnerMachineView(player_winner)
@@ -106,6 +104,10 @@ class State:
         self.matrix      = [['  ' for x in range(self._config.size_jungle)] for x in range(self._config.size_jungle)]
         self.update()
 
+    # Update is a method that look inside
+    #   que informations of players and the board
+    #   and create a matrix that help to view the
+    #   information
     def update(self):
 
         for i in range(self._config.size_jungle):
@@ -121,6 +123,8 @@ class State:
             if self.burrows.burrows[i]['in'] == None:
                 self.matrix[self.burrows.burrows[i]['position'][0]][self.burrows.burrows[i]['position'][1]] = self.burrows.burrows[i]['label']
 
+    # update information about the animal on
+    #   this state
     def updateAnimal(self,player,animal,position=None,live=True,eat_by=None):
         if position != None:
             self.players.players[player][animal]['position'] = position
@@ -128,6 +132,7 @@ class State:
         self.players.players[player][animal]['eat_by'] = eat_by
         self.update()
 
+    # check it the status have a winner
     def won_by(self):
         if self.burrows.burrows['player_1']['in'] != None:
             return 'Player 2'
@@ -136,11 +141,14 @@ class State:
         else:
             return None
 
-
+    # before move is necessary, for example, check
+    #   if some animal will be eat, if true we need
+    #   put those information inside the animal information
+    #   informations like who and how was eat is necessary
+    #   for a number of reasons
     def checkPosition(self,animal,currentPosition):
         animal_eated = self.matrix[currentPosition[0]][currentPosition[1]]
         if animal_eated != '  ' and animal_eated == "B1" and animal_eated != "B2":
-            print 'eat:'+animal_eated
             self.players.players['player_'+animal_eated[1]][animal_eated[0]]['eat_by'] = animal
             self.players.players['player_'+animal_eated[1]][animal_eated[0]]['live'] = False
         elif animal_eated == "B1" or animal_eated == "B2":
@@ -152,7 +160,13 @@ class State:
                 self.burrows.burrows['player_2']['in'] = animal
 
 
-
+    # transform the elements on hash
+    #   to permit other states to compare your content with this.
+    #   Cut the string after 4 caracteres, the first half "R2" is
+    #   the animal "C" and the player "2" and the second half "01"
+    #   is the position on board [0,1].
+    #
+    #   result example "R201E205T212C214C122T154E161R165"
     def statusHash(self):
         the_hash = ''
         for i in range(self._config.size_jungle):

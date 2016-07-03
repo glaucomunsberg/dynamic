@@ -28,7 +28,7 @@ class PlayerConfiguration:
         self.players['player_1']['T']['live'] = True
         self.players['player_1']['T']['eat_by'] = None
         self.players['player_1']['C'] = {}
-        self.players['player_1']['C']['position'] = [5,2]
+        self.players['player_1']['C']['position'] = [2,2] #[5,2]
         self.players['player_1']['C']['label'] = 'Cachorro'
         self.players['player_1']['C']['short_label'] = 'C1'
         self.players['player_1']['C']['live'] = True
@@ -85,6 +85,7 @@ class JungleConfiguration:
         self._interface = Interface()
         self.setCombatType()
 
+    # this method will influence how the game player
     def setCombatType(self,combat='HM'):
         self.combat_type = combat
         self._player = {}
@@ -103,9 +104,10 @@ class JungleConfiguration:
     def howPlay(self):
         return self._player
 
+    # change the player 1 to player 2 and vice versa
     def nextPlayer(self):
 
-        # change the player
+
         self.move += 1
         if self._player['player'] == 'player_1':
             self._player['player']          = 'player_2'
@@ -180,7 +182,9 @@ class Rules:
         self.animals['R']['eat']    = ['R','E']
         self.animals['R']['food']   = ['T','C','R']
 
-    # command example "T1 to D1"
+    # command example "T1 to D1" and out
+    #   a lot of information about how this command
+    #   need be operate in the Jungle
     def interpretHumanCommand(self,command,jungleConfig,state):
         matrix  = state.matrix
         players = state.players.players
@@ -222,6 +226,7 @@ class Rules:
                 command_interpreted['is_valid'] = False
                 return command_interpreted
 
+            # check if the animal is live if not the commmand is invalid
             for i in players[player]:
                 if animal == players[player][i]['short_label'] and players[player][i]['live']:
                     command_interpreted['is_valid'] = True
@@ -232,14 +237,24 @@ class Rules:
 
 
             positionAnimal = self.animalTextToPosition(animal,matrix)
-            possiblesPositionsAnimal = self.animalPossiblesMoves(positionAnimal)
+            possiblesPositionsAnimal = self.possiblesMoves(positionAnimal)
+
             quadrant_position = self.validMoveText(quadrant)
 
             if len(quadrant_position) == 0:
                 command_interpreted['message'] = "Quadrant "+quadrant+" is not valid"
                 command_interpreted['is_valid'] = False
                 return command_interpreted
-            #
+
+            #print 'before'
+            #print possiblesPositionsAnimal
+            possiblesPositionsAnimal = self.possiblesAndValidsMoves(matrix,players,player,animal,possiblesPositionsAnimal)
+            #print 'after'
+            #print possiblesPositionsAnimal
+
+
+            # if the command "quadrant_position" is one of "possiblesPositionsAnimal"
+            #   return valid command.
             for possible in possiblesPositionsAnimal:
                 if possible == quadrant_position:
                     command_interpreted['is_valid']         = True
@@ -253,6 +268,7 @@ class Rules:
         command_interpreted['message'] = "Quadrant "+quadrant+" is not valid!"
         return command_interpreted
 
+    # return the tuple [x,y] from the search animal
     def animalTextToPosition(self,animal,matrix):
         for i in range(len(matrix)):
             for j in range(len(matrix)):
@@ -260,6 +276,8 @@ class Rules:
                     position = [i,j]
         return position
 
+    # this method transform comand text like "G5"
+    #   to coordenates like [6,5] used on board
     def validMoveText(self,position):
         if position[0] == "A" or position[0] == "B" or position[0] == "C" or position[0] == "D" or position[0] == "E" or position[0] == "F" or position[0] == "G":
             try:
@@ -288,7 +306,8 @@ class Rules:
         else:
             return []
 
-    def animalPossiblesMoves(self,currentPosition):
+    # Return all tuples on board from the currentPosition
+    def possiblesMoves(self,currentPosition):
 
         # Corner
         #   only 2 possilities
@@ -316,3 +335,22 @@ class Rules:
         # Inside
         #   four possibilities
         return [[currentPosition[0]-1,currentPosition[1]],[currentPosition[0]+1,currentPosition[1]],[currentPosition[0],currentPosition[1]-1],[currentPosition[0],currentPosition[1]+1]]
+
+
+    #  possiblesMoves return all possibilities, but is necessary check if
+    #   the movements won't do with the movement eat your own animal.
+    def possiblesAndValidsMoves(self,matrix,players,player,animal,possiblesPositions):
+
+        returnedPossiblesPositions = []
+
+        for possiblePosition in possiblesPositions:
+            if matrix[possiblePosition[0]][possiblePosition[1]] == '  ':
+                returnedPossiblesPositions.append(possiblePosition)
+            else:
+                animal_on_matrix = matrix[possiblePosition[0]][possiblePosition[1]]
+                if animal_on_matrix[1] != animal[1]:
+                    for i in self.animals[animal[0]]['eat']:
+                        if i == animal_on_matrix[0]:
+                            returnedPossiblesPositions << possiblePosition
+
+        return returnedPossiblesPositions
