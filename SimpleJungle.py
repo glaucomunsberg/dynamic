@@ -1,58 +1,79 @@
 from Configuration import Configuration
 from Structure import *
 from Interface import Interface
+from SimpleJungleHelpers import *
 import os
 
 
 class SimpleJungle:
     _config	        = None
-    _matrix         = None
     _burrowConfig   = None
     _animalsConfig  = None
     _interface      = None
-    clear = lambda : os.system('tput reset')
+    _jungleConfig   = None
+    _rules          = None
+    _state          = None
 
     def __init__(self):
 
         self._config    = Configuration()
-        # Configuration to show a correctly tablet
-        self._config.size_puzzle = 7
+        self._config.size_puzzle = 7 # Configuration to show a correctly tablet
 
         self._interface = Interface()
-
-        self._matrix  = [['  ' for x in range(self._config.size_jungle)] for x in range(self._config.size_jungle)]
-
         self._state = State()
 
-        self._interface.printJungle(self._state.matrix)
-
-        print self._state.statusHash()
-
+        #self._interface.printJungle(self._state.matrix)
+        #print self._state.statusHash()
 
 
-    def singlePlayer(self):
-        self.clear
-        print 'Simple Jungle'
-        print ''
-        print 'Play as'
-        print ' 1 - Player 1'
-        print ' 2 - Player 2'
-        try:
-            mode=int(raw_input('Choice:'))
-            if mode != 1:
 
-        except:
-            print("Oops!  That was no valid number.  Try again...")
+    def play(self,combat_type=None):
 
-        print 'vamos continuar'
+        someone_win         = False
+
+        self._jungleConfig  = JungleConfiguration()
+        self._rules         = Rules()
+
+        self._interface.clear()
+
+        if combat_type != None:
+            self._jungleConfig.setCombatType(combat_type)
+        else:
+            self._jungleConfig.setCombatTypeInterface()
+
+        while not someone_win:
+
+            self._interface.clear()
+            print "\n                   Simple Jungle                    \n"
+            print " Play "+str(self._jungleConfig.move)
+            self._interface.printJungle(self._state.matrix)
 
 
-    def twoPlayer(self):
-        print 'two'
 
-    def printMatrix(self):
-        print 'self'
+            if self._jungleConfig.howPlay()['is_human']:
+                self.playerHuman()
+            else:
+                self.playerMachine()
 
+    def playerHuman(self):
+        print " Player "+str(self._jungleConfig.howPlay()['player_number'])+" (Human)"
+        is_valid    = False
+        message     = ""
+        while not is_valid:
+            if message != "":
+                print message
+
+            commands    = self._rules.interpretHumanCommand(raw_input('\nCommand:'),self._jungleConfig,self._state)
+            is_valid    = commands['is_valid']
+            message     = commands['message']
+
+        self._jungleConfig.nextPlayer()
+        raw_input('\nPress Enter')
+
+    def playerMachine(self,):
+        print " Player "+str(self._jungleConfig.howPlay()['player_number'])+" (Machine)"
+        print " Waiting..."
+        self._jungleConfig.nextPlayer()
 
 class State:
     _config = None
@@ -90,106 +111,3 @@ class State:
                     the_hash += str(j)
 
         return the_hash
-
-class PlayerConfiguration:
-    players         = None
-
-    def __init__(self):
-
-        self.players = {}
-
-        self.players['player_1'] = {}
-        self.players['player_1']['R'] = {}
-        self.players['player_1']['R']['position'] = [6,5]
-        self.players['player_1']['R']['label'] = 'Rato'
-        self.players['player_1']['R']['short_label'] = 'E2'
-        self.players['player_1']['R']['live'] = True
-        self.players['player_1']['R']['eat_by'] = None
-        self.players['player_1']['E'] = {}
-        self.players['player_1']['E']['position'] = [6,1]
-        self.players['player_1']['E']['label'] = 'Elefante'
-        self.players['player_1']['E']['short_label'] = 'E2'
-        self.players['player_1']['E']['live'] = True
-        self.players['player_1']['E']['eat_by'] = None
-        self.players['player_1']['E']['short_label'] = 'E2'
-        self.players['player_1']['T'] = {}
-        self.players['player_1']['T']['position'] = [5,4]
-        self.players['player_1']['T']['label'] = 'Tigre'
-        self.players['player_1']['T']['short_label'] = 'T2'
-        self.players['player_1']['T']['live'] = True
-        self.players['player_1']['T']['eat_by'] = None
-        self.players['player_1']['C'] = {}
-        self.players['player_1']['C']['position'] = [5,2]
-        self.players['player_1']['C']['label'] = 'Cachorro'
-        self.players['player_1']['C']['short_label'] = 'C2'
-        self.players['player_1']['C']['live'] = True
-        self.players['player_1']['C']['eat_by'] = None
-        self.players['player_2'] = {}
-        self.players['player_2']['R'] = {}
-        self.players['player_2']['R']['position'] = [0,1]
-        self.players['player_2']['R']['label'] = 'Rato'
-        self.players['player_2']['R']['short_label'] = 'R1'
-        self.players['player_2']['R']['live'] = True
-        self.players['player_2']['R']['eat_by'] = None
-        self.players['player_2']['E'] = {}
-        self.players['player_2']['E']['position'] = [0,5]
-        self.players['player_2']['E']['label'] = 'Elefante'
-        self.players['player_2']['E']['short_label'] = 'E1'
-        self.players['player_2']['E']['live'] = True
-        self.players['player_2']['E']['eat_by'] = None
-        self.players['player_2']['T'] = {}
-        self.players['player_2']['T']['position'] = [1,2]
-        self.players['player_2']['T']['label'] = 'Tigre'
-        self.players['player_2']['T']['short_label'] = 'T1'
-        self.players['player_2']['T']['live'] = True
-        self.players['player_2']['T']['eat_by'] = None
-        self.players['player_2']['C'] = {}
-        self.players['player_2']['C']['position'] = [1,4]
-        self.players['player_2']['C']['label'] = 'Cachorro'
-        self.players['player_2']['C']['short_label'] = 'C1'
-        self.players['player_2']['C']['live'] = True
-        self.players['player_2']['C']['eat_by'] = None
-
-
-class BurrowsConfiguration:
-    burrows         = None
-
-    def __init__(self):
-        self.burrows  = {}
-        self.burrows['player_1'] = {}
-        self.burrows['player_1']['position'] = [0,3]
-        self.burrows['player_1']['label'] = 'B1'
-        self.burrows['player_2'] = {}
-        self.burrows['player_2']['position'] = [6,3]
-        self.burrows['player_2']['label'] = 'B2'
-
-class JungleConfiguration:
-    combat_type     = None
-    #   combat_type {"HM","HH","MH"}. Labels {"H"=>"Human","M"=>"Machine"}
-    _machinePlayer  = None
-
-    def __init__(self,combat='HM'):
-        self.combat_type = combat
-        if self.combat_type == "HM":
-            self._machinePlayer = 'player_2'
-        elif self.combat_type == "MH":
-            self._machinePlayer = 'player_1'
-
-class Rules:
-    animals = None
-
-    def __init__(self):
-
-        self.animals = {}
-        self.animals['C']           = {}
-        self.animals['C']['eat']    = ['C','R']
-        self.animals['C']['food']   = ['C','T','E']
-        self.animals['T']           = {}
-        self.animals['T']['eat']    = ['T','C','R']
-        self.animals['T']['food']   = ['T','E']
-        self.animals['E']           = {}
-        self.animals['E']['eat']    = ['E','T','C']
-        self.animals['E']['foot']   = ['E','R']
-        self.animals['R']           = {}
-        self.animals['R']['eat']    = ['R','E']
-        self.animals['R']['food']   = ['T','C','R']

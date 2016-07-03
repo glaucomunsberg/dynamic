@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
         #puzzle.Astar(puzzle.getMatrix())
         #ticTacToe.playTicTacToe()
-        simpleJungle.singlePlayer()
-        
+        simpleJungle.play()
+
         end = time.time()
         elapsed = end - start
         print 'running at',elapsed,'seconds'

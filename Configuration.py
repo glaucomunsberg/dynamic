@@ -23,7 +23,7 @@ class Configuration:
 		self.size_jungle	= 7
 		self.number_of_tiles = (self.size_puzzle*self.size_puzzle) - 1
 
-		self.times_tests = 2
+		self.times_tests = 1
 
 	# Method used to print the configuration
 	#	used on configuration

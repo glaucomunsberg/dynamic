@@ -8,6 +8,7 @@ class Interface:
     _config	    = None
     _topDecoration = None
 
+
     # initialize the decoration used
     #   around the numbers.
     def __init__(self):
@@ -115,3 +116,6 @@ class Interface:
         print " ─────┼─────┼───── "
         print "   "+str(matrix[2][0])+"  │  "+str(matrix[2][1])+"  │  "+str(matrix[2][2])+""
         print "             "
+
+    def clear(self):
+        os.system('tput reset')
