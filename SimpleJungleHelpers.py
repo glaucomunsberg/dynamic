@@ -68,9 +68,11 @@ class BurrowsConfiguration:
         self.burrows['player_1'] = {}
         self.burrows['player_1']['position'] = [6,3]
         self.burrows['player_1']['label'] = 'B1'
+        self.burrows['player_1']['in'] = None
         self.burrows['player_2'] = {}
         self.burrows['player_2']['position'] = [0,3]
         self.burrows['player_2']['label'] = 'B2'
+        self.burrows['player_2']['in'] = None
 
 class JungleConfiguration:
     _interface  = None
@@ -186,8 +188,16 @@ class Rules:
         #print 'command: '+command+" size: "+str(len(command_bits))
 
         command_interpreted = {}
-        command_interpreted['message']  = ""
-        command_interpreted['is_valid'] = False
+        command_interpreted['message']      = ""
+        command_interpreted['is_valid']     = False
+        command_interpreted['short_label']  = ""
+        command_interpreted['quadrant_to_go']   = []
+        command_interpreted['player']       = ""
+
+        if command == "" or command == None:
+            command_interpreted['is_valid'] = False
+            command_interpreted['message'] = "Command empty. Try something like 'E2 to F1'"
+            return command_interpreted
 
         command = command.upper()
         command_bits = command.split()
@@ -229,14 +239,18 @@ class Rules:
                 command_interpreted['message'] = "Quadrant "+quadrant+" is not valid"
                 command_interpreted['is_valid'] = False
                 return command_interpreted
-            # 
+            #
             for possible in possiblesPositionsAnimal:
                 if possible == quadrant_position:
-                    command_interpreted['is_valid'] = True
+                    command_interpreted['is_valid']         = True
+                    command_interpreted['short_label']      = animal
                     command_interpreted['current_position'] = positionAnimal
-                    command_interpreted['quadrant_to_go'] = quadrant_position
+                    command_interpreted['quadrant_to_go']   = quadrant_position
+                    command_interpreted['player']           = player
                     return command_interpreted
 
+        command_interpreted['is_valid'] = False
+        command_interpreted['message'] = "Quadrant "+quadrant+" is not valid!"
         return command_interpreted
 
     def animalTextToPosition(self,animal,matrix):

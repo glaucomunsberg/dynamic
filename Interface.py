@@ -119,3 +119,47 @@ class Interface:
 
     def clear(self):
         os.system('tput reset')
+
+    def winnerMachineView(self,player):
+        os.system('tput reset')
+        print "   "+player.upper()+" Machine Win!"
+        print " _____________"
+        print "|=============|"
+        print "| .---------. |"
+        print "| | HAL-9000| |"
+        print "| '---------' |"
+        print "|             |"
+        print "|             |"
+        print "|             |"
+        print "|             |"
+        print "|      _      |"
+        print "|   ,`   `.   |"
+        print "|   : (o) :   |"
+        print "|   `. _ ,`   |"
+        print "|             |"
+        print "|_____________|"
+        print "|-------------|"
+        print "|-------------|"
+        print "|-------------|"
+        print "|-------------|"
+        print "|-------------|"
+        print "'============='"
+        
+    def winnerHummanView(self,player):
+        os.system('tput reset')
+        print "   "+player.upper()+" Win!"
+        print "                                _ .--."
+        print "                             .-'      `--,"
+        print "                  _..----.. (             )`-."
+        print "                .'_|` _|` _|(  .__,           )"
+        print "               /_|  _|  _|  _(        (_,  .-'"
+        print "              ;|  _|  _|  _|  '-'__,--'`--'"
+        print "          _   | _|  _|  _|  _| |"
+        print "     .- _( `--.\_|  _|  _|  _|/"
+        print "    (__, (_      ) )_|  _| /"
+        print "   jgs`-.__.\ _,--'\|__|__/"
+        print "                    ;____;"
+        print "                     \YT/"
+        print "                      ||"
+        print "                     |""|"
+        print "                     '=='"
