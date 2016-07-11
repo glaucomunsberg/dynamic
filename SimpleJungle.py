@@ -2,7 +2,9 @@ from Configuration import Configuration
 from Structure import *
 from Interface import Interface
 from SimpleJungleHelpers import *
+
 import os, copy
+
 
 class SimpleJungle:
     _config	        = None
@@ -12,6 +14,7 @@ class SimpleJungle:
     _jungleConfig   = None
     _rules          = None
     _state          = None
+    _IA             = None
 
     def __init__(self):
 
@@ -19,11 +22,12 @@ class SimpleJungle:
         self._config.size_puzzle = 7 # Configuration to show a correctly tablet
 
         self._interface = Interface()
-        self._state = State()
+        self._state     = State()
+
+        self._IA        = IA()
 
         #self._interface.printJungle(self._state.matrix)
         print self._state.statusHash()
-
 
 
     def play(self,combat_type=None):
@@ -40,9 +44,13 @@ class SimpleJungle:
         else:
             self._jungleConfig.setCombatTypeInterface()
 
+
+
         while not someone_win:
 
-            self._interface.clear()
+            #self._interface.clear()
+
+
             print "\n                   Simple Jungle                    \n"
             print " Play "+str(self._jungleConfig.move)
             self._interface.printJungle(self._state.matrix)
@@ -88,6 +96,16 @@ class SimpleJungle:
     def playerMachine(self,):
         print " Player "+str(self._jungleConfig.howPlay()['player_number'])+" (Machine)"
         print " Waiting..."
+
+        #self._IA.calculateScore(self._state,self._jungleConfig)
+        commands            = self._IA.bestMoveOnScene(self._state,self._jungleConfig)
+        moviment_is_valid   = commands['is_valid']
+        message             = commands['message']
+
+        if moviment_is_valid:
+            self._state.checkPosition(commands['short_label'],commands['quadrant_to_go'])
+            self._state.updateAnimal(self._jungleConfig.howPlay()['player'],commands['short_label'][0],commands['quadrant_to_go'])
+
         self._jungleConfig.nextPlayer()
 
 class State:
@@ -95,7 +113,7 @@ class State:
     players = None
     burrows = None
     matrix  = None
-    score   = 0
+    score   = -9999
 
     def __init__(self):
         self._config    = Configuration()
@@ -126,8 +144,8 @@ class State:
     # update information about the animal on
     #   this state
     def updateAnimal(self,player,animal,position=None,live=True,eat_by=None):
-        if position != None:
-            self.players.players[player][animal]['position'] = position
+
+        self.players.players[player][animal]['position'] = position
         self.players.players[player][animal]['live'] = live
         self.players.players[player][animal]['eat_by'] = eat_by
         self.update()
@@ -148,7 +166,7 @@ class State:
     #   for a number of reasons
     def checkPosition(self,animal,currentPosition):
         animal_eated = self.matrix[currentPosition[0]][currentPosition[1]]
-        if animal_eated != '  ' and animal_eated == "B1" and animal_eated != "B2":
+        if animal_eated != '  ' and animal_eated != "B1" and animal_eated != "B2":
             self.players.players['player_'+animal_eated[1]][animal_eated[0]]['eat_by'] = animal
             self.players.players['player_'+animal_eated[1]][animal_eated[0]]['live'] = False
         elif animal_eated == "B1" or animal_eated == "B2":
