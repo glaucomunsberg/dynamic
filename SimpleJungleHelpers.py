@@ -1008,7 +1008,7 @@ class IA:
 
     def getBestMoveOnMoves(self, moves, state, config):
 
-        bestValue    = 0
+        bestValue    = -99999999
         returnMove   = None
 
         for move in moves:
@@ -1042,8 +1042,20 @@ class IA:
                 value += self.getBestValue(this_state,config)
         else:
             player = config.howPlay()['player']
+            oponent_player = None
+            if player == "player_1":
+                oponent_player = "player_2"
+            else:
+                oponent_player = "player_1"
             for animal in state.players.players[player]:
                 if state.players.players[player][animal]['live']:
+                    value += 1
+                else:
+                    value -= 1
+            for animal in state.players.players[oponent_player]:
+                if state.players.players[oponent_player][animal]['live']:
+                    value -= 1
+                else:
                     value += 1
 
         return value

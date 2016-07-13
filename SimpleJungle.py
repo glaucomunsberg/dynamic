@@ -102,8 +102,8 @@ class SimpleJungle:
         #print 'AllCommands'
         #print str(allCommands)
         allCommands         = self._IA.movesOnScene(self._state,self._jungleConfig)
-        #commands            = self._IA.getBestMoveOnMoves(allCommands, self._state, self._jungleConfig)
-        commands            = self._IA.bestMoveOnScene(self._state,self._jungleConfig)
+        commands            = self._IA.getBestMoveOnMoves(deepcopy(allCommands), deepcopy(self._state), deepcopy(self._jungleConfig))
+        #commands            = self._IA.bestMoveOnScene(self._state,self._jungleConfig)
         moviment_is_valid   = commands['is_valid']
         message             = commands['message']
         print 'command'
