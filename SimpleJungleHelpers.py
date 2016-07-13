@@ -33,7 +33,7 @@ class PlayerConfiguration:
         self.players['player_1']['T']['live'] = True
         self.players['player_1']['T']['eat_by'] = None
         self.players['player_1']['C'] = {}
-        self.players['player_1']['C']['position'] = [2,2] #[5,2]
+        self.players['player_1']['C']['position'] = [5,2] #[5,2]
         self.players['player_1']['C']['label'] = 'Cachorro'
         self.players['player_1']['C']['short_label'] = 'C1'
         self.players['player_1']['C']['live'] = True
