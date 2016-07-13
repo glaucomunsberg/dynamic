@@ -93,14 +93,21 @@ class SimpleJungle:
             raw_input('\nPress Enter')
 
 
-    def playerMachine(self,):
+    def playerMachine(self):
         print " Player "+str(self._jungleConfig.howPlay()['player_number'])+" (Machine)"
         print " Waiting..."
 
         #self._IA.calculateScore(self._state,self._jungleConfig)
+
+        #print 'AllCommands'
+        #print str(allCommands)
+        allCommands         = self._IA.movesOnScene(self._state,self._jungleConfig)
+        #commands            = self._IA.getBestMoveOnMoves(allCommands, self._state, self._jungleConfig)
         commands            = self._IA.bestMoveOnScene(self._state,self._jungleConfig)
         moviment_is_valid   = commands['is_valid']
         message             = commands['message']
+        print 'command'
+        print str(commands)
 
         if moviment_is_valid:
             self._state.checkPosition(commands['short_label'],commands['quadrant_to_go'])
@@ -109,17 +116,20 @@ class SimpleJungle:
         self._jungleConfig.nextPlayer()
 
 class State:
-    _config = None
-    players = None
-    burrows = None
-    matrix  = None
-    score   = -9999
+    _config     = None
+    players     = None
+    burrows     = None
+    matrix      = None
+    depth       = 0
+    score       = -9999
+    childrens   = None
 
     def __init__(self):
         self._config    = Configuration()
         self.players     = PlayerConfiguration()
         self.burrows     = BurrowsConfiguration()
         self.matrix      = [['  ' for x in range(self._config.size_jungle)] for x in range(self._config.size_jungle)]
+        self.children    = []
         self.update()
 
     # Update is a method that look inside

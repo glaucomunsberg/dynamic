@@ -1,6 +1,10 @@
 from Interface import Interface
 from random import randint
+from SimpleJungle import *
+
+from copy import copy, deepcopy
 import operator
+
 
 class PlayerConfiguration:
     players         = None
@@ -138,8 +142,8 @@ class JungleConfiguration:
 
     def setCombatTypeInterface(self):
         self._interface.clear()
-        print "\n                   Simple Jungle                    \n"
-        print "Players Mode"
+       #print "\n                   Simple Jungle                    \n"
+       #print "Players Mode"
         print " 1) Human   x Machine"
         print " 2) Human   x Human"
         print " 3) Machine x Machine"
@@ -173,15 +177,19 @@ class Rules:
         self.animals['C']           = {}
         self.animals['C']['eat']    = ['C','R']
         self.animals['C']['food']   = ['C','T','E']
+        self.animals['C']['score']  = 0.25
         self.animals['T']           = {}
         self.animals['T']['eat']    = ['T','C','R']
         self.animals['T']['food']   = ['T','E']
+        self.animals['T']['score']  = 0.5
         self.animals['E']           = {}
         self.animals['E']['eat']    = ['E','T','C']
         self.animals['E']['food']   = ['E','R']
+        self.animals['E']['score']  = 0.7
         self.animals['R']           = {}
         self.animals['R']['eat']    = ['R','E']
         self.animals['R']['food']   = ['T','C','R']
+        self.animals['R']['score']  = 1
 
     # command example "T1 to D1" and out
     #   a lot of information about how this command
@@ -377,7 +385,7 @@ class IA:
         for animal in players.players[player]:
             if players.players[player][animal]['live']:
 
-                print 'animal: '+animal
+                #print 'animal: '+animal
 
                 for animalToEat in self.rules.animals[animal]['eat']:
                     if players.players[player_oponent][animalToEat]['live']:
@@ -388,10 +396,10 @@ class IA:
                         iWillFood += self.manhattanDistance(players.players[player][animal]['position'],players.players[player_oponent][animalToFood]['position'])
 
                 distanceToWin+= 11 - (self.manhattanDistance(players.players[player][animal]['position'],burrows.burrows[player_oponent]['position']) * 1.22)
-                print 'iWillEat  '+str(iWillEat)
-                print 'iWillFood '+str(iWillFood)
-                print 'distanceTo'+str(distanceToWin)
-                print 'score     '+str(iWillEat-iWillFood+distanceToWin)
+                #print 'iWillEat  '+str(iWillEat)
+                #print 'iWillFood '+str(iWillFood)
+                #print 'distanceTo'+str(distanceToWin)
+                #print 'score     '+str(iWillEat-iWillFood+distanceToWin)
         return iWillEat-iWillFood+distanceToWin
 
     def bestMoveOnScene(self,state,jungleConfig):
@@ -431,8 +439,9 @@ class IA:
         for animal in players.players[player]:
             if players.players[player][animal]['live']:
                 iWillEat        = 0
+                iWillFeed       = 0
                 distanceToWin   = 0
-                print 'animal: '+animal
+                #print 'animal: '+animal
 
 
                 # calculate the avarange to borrow
@@ -453,13 +462,17 @@ class IA:
 
                         iWillEat += distance
                         averageAnimalsToEat = (averageAnimalsToEat+distance)/2
-
+                for animalToFeed in self.rules.animals[animal]['food']:
+                    if players.players[player_oponent][animalToEat]['live']:
+                        distance  = self.manhattanDistance(players.players[player][animal]['position'],players.players[player_oponent][animalToFeed]['position'])
+                        if distance <= 4:
+                            iWillFeed += distance
                 # calculate the score
-                distanceToWin+= 11 - (self.manhattanDistance(players.players[player][animal]['position'],burrows.burrows[player_oponent]['position']) * 1.22)
-                thisAnimalScore = iWillEat+distanceToWin
+                distanceToWin+= self.manhattanDistance(players.players[player][animal]['position'],burrows.burrows[player_oponent]['position'])
+                thisAnimalScore = iWillEat+distanceToWin-iWillFeed
 
-                print 'Animal Score: '+animal
-                print 'Animal Store: '+str(thisAnimalScore)
+                #print 'Animal Score: '+animal
+                #print 'Animal Store: '+str(thisAnimalScore)
                 animalsScores[animal] = thisAnimalScore
 
                 if thisAnimalScore > bestAnimalScore:
@@ -482,9 +495,9 @@ class IA:
 
                         averangeAnimalsToFeed = (averangeAnimalsToFeed+distance)/2
 
-        print 'Need be safe :     '+str(bestToSafe)
-        print 'Need be eat  :     '+str(bestToEat)
-        print 'Best Animal  :     '+str(bestAnimal)
+        #print 'Need be safe :     '+str(bestToSafe)
+        #print 'Need be eat  :     '+str(bestToEat)
+        #print 'Best Animal  :     '+str(bestAnimal)
 
         # order and revert
 
@@ -492,34 +505,44 @@ class IA:
         animalsScores = sorted(animalsScores.items(), key=operator.itemgetter(1))
         #print 'Animal Scores Ord :'+str(animalsScores)
         animalsScores.reverse()
-        print 'Animal Scores Reve:'+str(animalsScores)
+        #print 'Animal Scores Reve:'+str(animalsScores)
 
 
 
         #
         # try move to eat
         if len(bestToEat) > 0:
-            print 'Executation: Best to eat'
+            #print 'Executation: Best to eat'
 
-            choice = randint(0,len(bestToEat)-1)
-            bestToEat = bestToEat[choice]
 
-            command_interpreted['short_label']  = bestToEat[1]+player_number
+            score = 0.0
+            theBest = None
+            for animals in bestToEat:
+                if self.rules.animals[animals[1]]['score'] > score:
+                    theBest = animals
+            bestToEat = theBest
+
+            command_interpreted['type']             = 1
+            command_interpreted['short_label']      = bestToEat[1]+player_number
             command_interpreted['quadrant_to_go']   = players.players[player_oponent][bestToEat[0][0]]['position']
 
-            print 'animal  :'+bestToEat[0]
-            print 'eat by  :'+bestToEat[1]
-            print 'comand: '+str(command_interpreted)
-
+            #print 'animal   :'+bestToEat[0]
+            #print 'eat by   :'+bestToEat[1]
+            #print 'command  :'+str(command_interpreted)
             return command_interpreted
 
         #
         # try move to safe
         if len(bestToSafe) > 0:
-            print 'Executation: Best to Safe'
+            #print 'Executation: Best to Safe'
 
-            choice = randint(0,len(bestToSafe)-1)
-            bestToSafe = bestToSafe[choice]
+            score = 0.0
+            theBest = None
+            for animals in bestToSafe:
+                if self.rules.animals[animals[0]]['score'] > score:
+                    theBest = animals
+            bestToSafe = theBest
+
             moves = self.rules.possiblesMoves(players.players[player][bestToSafe[0]]['position'])
             movesToReturn = []
 
@@ -538,17 +561,16 @@ class IA:
             #print movesToReturn
             if len(movesToReturn) > 0:
                 choice = randint(0,len(movesToReturn)-1)
-                command_interpreted['short_label']  = bestToSafe
+                command_interpreted['type']             = 2
+                command_interpreted['short_label']      = bestToSafe
                 command_interpreted['quadrant_to_go']   = movesToReturn[choice]
-
-                print 'animal  :'+bestToSafe
-                print 'comand: '+str(command_interpreted)
+                #print 'command :'+str(command_interpreted)
                 return command_interpreted
 
         #
         # The rat is dead and the elephant need be restrained
         if not players.players[player]['R']['live'] and players.players[player_oponent]['E']['live'] and players.players[player]['E']['live']:
-            print 'Executation: get the elephant bitch!'
+           #print 'Executation: get the elephant bitch!'
 
             moves = self.rules.possiblesMoves(players.players[player]['E']['position'])
             for move in moves:
@@ -571,10 +593,10 @@ class IA:
                     choiceMove = move
 
             if choiceMove != None:
-                command_interpreted['short_label']  = bestAnimal
+                command_interpreted['type']             = 3
+                command_interpreted['short_label']      = bestAnimal
                 command_interpreted['quadrant_to_go']   = choiceMove
-                print 'animal  :'+bestAnimal
-                print 'comand: '+str(command_interpreted)
+                #print 'comand: '+str(command_interpreted)
                 return command_interpreted
 
         while(len(animalsScores)>0):
@@ -582,7 +604,7 @@ class IA:
             #
             # try move to eat
             if len(animalsToEat) > 0 and averageAnimalsToEat < averangeToBurrow:
-                print 'Executation: move to eat'
+               #print 'Executation: move to eat'
                 bestAnimalToEatDistance = 999
                 bestAnimalToMove = None
                 movesPossible = []
@@ -624,24 +646,20 @@ class IA:
                                 bestMove                = moveSafe
 
                 if bestMove != None:
-                    print 'best to eat: '+bestAnimalToMove
+                    command_interpreted['type']             = 4
                     command_interpreted['short_label']      = bestAnimalToMove
                     command_interpreted['quadrant_to_go']   = bestMove
-                    print 'animal  :'+bestAnimalToMove
-                    print 'comand: '+str(command_interpreted)
+                   #print 'comand: '+str(command_interpreted)
                     return command_interpreted
-            else: #try move to eat
-                print 'Executation: move to eat ABORTED'
 
             #
             # try move to burrow
-            print 'Executation: move to burrow!'
+           #print 'Executation: move to burrow!'
 
             # get the best score to send!
             element     = animalsScores[0]
             bestAnimal  = element[0]
             animalsScores.remove(element)
-            print 'Animal: '+bestAnimal
 
             movesToReturn = []
             moves = self.rules.possiblesMoves(players.players[player][bestAnimal]['position'])
@@ -664,13 +682,371 @@ class IA:
                 if willFeedSomeone != True:
                     distance = manhattanDistance
                     choiceMove = move
-                    print 'Best choiceMove '+str(choiceMove)
 
-            command_interpreted['short_label']  = bestAnimal
+            command_interpreted['type']             = 5
+            command_interpreted['short_label']      = bestAnimal
             command_interpreted['quadrant_to_go']   = choiceMove
-            print 'animal  :'+bestAnimal
-            print 'comand  :'+str(command_interpreted)
+            #print 'comand  :'+str(command_interpreted)
             return command_interpreted
+
+
+
+    def movesOnScene(self,state,jungleConfig):
+        allMoves    = []
+
+        players     = state.players
+        burrows     = state.burrows
+        matrix      = state.matrix
+        player      = jungleConfig.howPlay()['player']
+
+        player_oponent = ""
+
+        if player == "player_1":
+            player_oponent = "player_2"
+            player_oponent_number = "2"
+            player_number = "1"
+        else:
+            player_oponent = "player_1"
+            player_oponent_number = "1"
+            player_number = "2"
+
+        command_interpreted = {}
+        command_interpreted['message']      = ""
+        command_interpreted['is_valid']     = True
+        command_interpreted['short_label']  = ""
+        command_interpreted['quadrant_to_go']   = None
+        command_interpreted['player']       = player
+
+        animalsScores           = {}
+        bestAnimalScore         = 0
+        animalsToEat            = {}
+        averageAnimalsToEat     = 0
+        animalsToFeed           = {}
+        averangeAnimalsToFeed   = 0
+        bestToSafe              = []
+        bestToEat               = []
+        averangeToBurrow        = 0
+
+        for animal in players.players[player]:
+            if players.players[player][animal]['live']:
+                iWillEat        = 0
+                iWillFeed       = 0
+                distanceToWin   = 0
+                #print 'animal: '+animal
+
+
+                # calculate the avarange to borrow
+                averangeToBurrow  = (averangeToBurrow+self.manhattanDistance(players.players[player][animal]['position'],burrows.burrows[player_oponent]['position']))/2
+
+                # calculate the distante of animals that this eat
+                for animalToEat in self.rules.animals[animal]['eat']:
+                    if players.players[player_oponent][animalToEat]['live']:
+
+                        distance  = self.manhattanDistance(players.players[player][animal]['position'],players.players[player_oponent][animalToEat]['position'])
+                        if animal in animalsToEat:
+                            animalsToEat[animal] += distance
+                        else:
+                            animalsToEat[animal] = distance
+
+                        if distance == 1:
+                            bestToEat.append([animalToEat,animal])
+
+                        iWillEat += distance
+                        averageAnimalsToEat = (averageAnimalsToEat+distance)/2
+                for animalToFeed in self.rules.animals[animal]['food']:
+                    if players.players[player_oponent][animalToEat]['live']:
+                        distance  = self.manhattanDistance(players.players[player][animal]['position'],players.players[player_oponent][animalToFeed]['position'])
+                        if distance <= 4:
+                            iWillFeed += distance
+                # calculate the score
+                distanceToWin+= self.manhattanDistance(players.players[player][animal]['position'],burrows.burrows[player_oponent]['position'])
+                thisAnimalScore = iWillEat+distanceToWin-iWillFeed
+
+                #print 'Animal Score: '+animal
+                #print 'Animal Store: '+str(thisAnimalScore)
+                animalsScores[animal] = thisAnimalScore
+
+                if thisAnimalScore > bestAnimalScore:
+                    bestAnimalScore = thisAnimalScore
+                    bestAnimal      = animal+player_number
+
+
+                # calculate the distante of animals that this feed
+                for animalToFeed in self.rules.animals[animal]['food']:
+                    if players.players[player_oponent][animalToFeed]['live']:
+
+                        distance  = self.manhattanDistance(players.players[player][animal]['position'],players.players[player_oponent][animalToFeed]['position'])
+                        if animal in animalsToFeed:
+                            animalsToFeed[animal] += distance
+                        else:
+                            animalsToFeed[animal] = distance
+
+                        if distance == 1:
+                            bestToSafe.append(animal+player_number)
+
+                        averangeAnimalsToFeed = (averangeAnimalsToFeed+distance)/2
+
+        #print 'Need be safe :     '+str(bestToSafe)
+        #print 'Need be eat  :     '+str(bestToEat)
+        #print 'Best Animal  :     '+str(bestAnimal)
+
+        # order and revert
+
+        #print 'Animal Scores     :'+str(animalsScores)
+        animalsScores = sorted(animalsScores.items(), key=operator.itemgetter(1))
+        #print 'Animal Scores Ord :'+str(animalsScores)
+        animalsScores.reverse()
+        #print 'Animal Scores Reve:'+str(animalsScores)
+
+
+
+        #
+        # try move to eat
+        if len(bestToEat) > 0:
+            #print 'Executation: Best to eat'
+
+
+            score = 0.0
+            theBest = None
+            for animals in bestToEat:
+                if self.rules.animals[animals[1]]['score'] > score:
+                    theBest = animals
+            bestToEat = theBest
+
+            command_interpreted_1 = {}
+            command_interpreted_1['is_valid']         = True
+            command_interpreted_1['message']          = ""
+            command_interpreted_1['player']           = player
+            command_interpreted_1['type']             = 1
+            command_interpreted_1['short_label']      = bestToEat[1]
+            command_interpreted_1['quadrant_to_go']   = players.players[player_oponent][bestToEat[0][0]]['position']
+
+            #print 'animal   :'+bestToEat[0]
+            #print 'eat by   :'+bestToEat[1]
+            #print 'command  :'+str(command_interpreted_1)
+            allMoves.append(command_interpreted_1)
+
+        #
+        # try move to safe
+        if len(bestToSafe) > 0:
+            #print 'Executation: Best to Safe'
+
+            score = 0.0
+            theBest = None
+            for animals in bestToSafe:
+                if self.rules.animals[animals[0]]['score'] > score:
+                    theBest = animals
+            bestToSafe = theBest
+
+            moves = self.rules.possiblesMoves(players.players[player][bestToSafe[0]]['position'])
+            movesToReturn = []
+
+            for move in moves:
+                if matrix[move[0]][move[1]] == '  ':
+                    willBeFood = False
+                    for animalToFeed in self.rules.animals[animal]['food']:
+                        if players.players[player_oponent][animalToFeed]['live']:
+                            distance = self.manhattanDistance(move,players.players[player_oponent][animalToFeed]['position'])
+                            if distance == 1:
+                                willBeFood = True
+                    if not willBeFood:
+                        movesToReturn.append(move)
+
+            #print 'Valids to safe'
+            #print movesToReturn
+            if len(movesToReturn) > 0:
+                choice = randint(0,len(movesToReturn)-1)
+                command_interpreted_2 = {}
+                command_interpreted_2['is_valid']         = True
+                command_interpreted_2['message']          = ""
+                command_interpreted_2['player']           = player
+                command_interpreted_2['type']             = 2
+                command_interpreted_2['short_label']      = bestToSafe[0]
+                command_interpreted_2['quadrant_to_go']   = movesToReturn[choice]
+                #print 'command :'+str(command_interpreted_2)
+                allMoves.append(command_interpreted_2)
+
+        #
+        # The rat is dead and the elephant need be restrained
+        if not players.players[player]['R']['live'] and players.players[player_oponent]['E']['live'] and players.players[player]['E']['live']:
+            #print 'Executation: get the elephant bitch!'
+
+            moves = self.rules.possiblesMoves(players.players[player]['E']['position'])
+            movesToReturn = []
+            for move in moves:
+                if matrix[move[0]][move[1]] == '  ':
+                    movesToReturn.append(move)
+
+            choiceMove = None
+            distance = 999
+            for move in movesToReturn:
+                manhattanDistance = self.manhattanDistance(move,players.players[player_oponent]['E']['position'])
+                willFeedSomeone = False
+
+                for animalToFeed in self.rules.animals['E']['food']:
+                    if players.players[player_oponent][animalToFeed]['live']:
+                        distance = self.manhattanDistance(move,players.players[player_oponent][animalToFeed]['position'])
+                        if distance == 1:
+                            willFeedSomeone = True
+
+                if manhattanDistance < distance and willFeedSomeone != True:
+                    choiceMove = move
+
+            if choiceMove != None:
+                command_interpreted_3 = {}
+                command_interpreted_3['is_valid']         = True
+                command_interpreted_3['message']          = ""
+                command_interpreted_3['player']           = player
+                command_interpreted_3['type']             = 3
+                command_interpreted_3['short_label']      = bestAnimal
+                command_interpreted_3['quadrant_to_go']   = choiceMove
+                #print 'comand: '+str(command_interpreted_3)
+                allMoves.append(command_interpreted_3)
+        tryToMoveToEat  = True
+        tryToMoveBurrow = True
+        while(len(animalsScores)>0 and (tryToMoveToEat or tryToMoveBurrow)):
+
+            #
+            # try move to eat
+            if len(animalsToEat) > 0 and averageAnimalsToEat < averangeToBurrow:
+                #print 'Executation: move to eat'
+                bestAnimalToEatDistance = 999
+                bestAnimalToMove = None
+                movesPossible = []
+                movesSafes = []
+
+                for animal in animalsToEat:
+                    if animalsToEat[animal] < bestAnimalToEatDistance:
+                        bestAnimalToEatDistance = animalsToEat[animal]
+                        bestAnimalToMove        = animal
+
+                #remove to not repeat
+                del animalsToEat[bestAnimalToMove]
+
+                moves = self.rules.possiblesMoves(players.players[player][bestAnimalToMove[0]]['position'])
+                for move in moves:
+                    if matrix[move[0]][move[1]] == '  ':
+                        movesPossible.append(move)
+
+                for move in movesPossible:
+                    willFeedSomeone = False
+                    for animalToFeed in self.rules.animals[bestAnimalToMove]['food']:
+                        if players.players[player_oponent][animalToFeed]['live']:
+                            distance  = self.manhattanDistance(move,players.players[player_oponent][animalToFeed]['position'])
+                            if distance == 1:
+                                willFeedSomeone = True
+                    if not willFeedSomeone:
+                        movesSafes.append(move)
+
+                bestAnimalToEatDistance = 999
+                bestAnimalToEat         = None
+                bestMove                = None
+                for moveSafe in movesSafes:
+                    for animalToEat in self.rules.animals[bestAnimalToMove]['eat']:
+                        if players.players[player_oponent][animalToEat]['live']:
+                            distance  = self.manhattanDistance(moveSafe,players.players[player_oponent][animalToFeed]['position'])
+                            if distance < bestAnimalToEatDistance:
+                                bestAnimalToEatDistance = distance
+                                bestAnimalEat           = animalToEat
+                                bestMove                = moveSafe
+
+                if bestMove != None:
+                    command_interpreted_4 = {}
+                    command_interpreted_4['is_valid']         = True
+                    command_interpreted_4['message']          = ""
+                    command_interpreted_4['player']           = player
+                    command_interpreted_4['type']             = 4
+                    command_interpreted_4['short_label']      = bestAnimalToMove
+                    command_interpreted_4['quadrant_to_go']   = bestMove
+                    #print 'command: '+str(command_interpreted_4)
+                    tryToMoveToEat = False
+                    allMoves.append(command_interpreted_4)
+
+            #
+            # try move to burrow
+            #print 'Executation: move to burrow!'
+
+            # get the best score to send!
+            element     = animalsScores[0]
+            bestAnimal  = element[0]
+            animalsScores.remove(element)
+
+            movesToReturn = []
+            moves = self.rules.possiblesMoves(players.players[player][bestAnimal]['position'])
+            for move in moves:
+                if matrix[move[0]][move[1]] == '  ':
+
+                    movesToReturn.append(move)
+            choiceMove = None
+            distance = 999
+            for move in movesToReturn:
+                manhattanDistance = self.manhattanDistance(move,burrows.burrows[player_oponent]['position'])
+                willFeedSomeone = False
+
+                for animalToFeed in self.rules.animals[bestAnimal]['food']:
+                    if players.players[player_oponent][animalToFeed]['live']:
+                        distance = self.manhattanDistance(move,players.players[player_oponent][animalToFeed]['position'])
+                        if distance == 1:
+                            willFeedSomeone = True
+
+                if willFeedSomeone != True:
+                    distance = manhattanDistance
+                    choiceMove = move
+            if choiceMove != None:
+                command_interpreted_5 = {}
+                command_interpreted_5['is_valid']         = True
+                command_interpreted_5['message']          = ""
+                command_interpreted_5['player']           = player
+                command_interpreted_5['type']             = 5
+                command_interpreted_5['short_label']      = bestAnimal
+                command_interpreted_5['quadrant_to_go']   = choiceMove
+                #print 'comand  :'+str(command_interpreted_5)
+                tryToMoveBurrow = False
+                allMoves.append(command_interpreted_5)
+
+        return allMoves
+
+    def getBestMoveOnMoves(self, moves, state, config):
+
+        bestValue    = 0
+        returnMove   = None
+
+        for move in moves:
+            this_state = deepcopy(state)
+            this_state.checkPosition(move['short_label'],move['quadrant_to_go'])
+            this_state.updateAnimal(config.howPlay()['player'],move['short_label'][0],move['quadrant_to_go'])
+            this_state.depth = 0
+            this_value = self.getBestValue(this_state,config)
+            if this_value > bestValue:
+                bestValue = this_value
+                returnMove = move
+
+        #print 'getBestMoveOnMoves'
+        #print str(returnMove)
+        return returnMove
+
+
+    def getBestValue(self,state,_config):
+
+        value = 0
+        config = copy(_config)
+        config.nextPlayer()
+        moves = self.movesOnScene(state,config)
+
+        if state.depth != 4:
+            for move in moves:
+                this_state = deepcopy(state)
+                this_state.checkPosition(move['short_label'],move['quadrant_to_go'])
+                this_state.updateAnimal(config.howPlay()['player'],move['short_label'][0],move['quadrant_to_go'])
+                this_state.depth = state.depth+1
+                value += self.getBestValue(this_state,config)
+        else:
+            player = config.howPlay()['player']
+            for animal in state.players.players[player]:
+                if state.players.players[player][animal]['live']:
+                    value += 1
+
+        return value
 
 
     def manhattanDistance(self,animal1,animal2):
