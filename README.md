@@ -1,2 +1,8 @@
 # dynamic
-Dynamic system soluctions
+Dynamic System Solutions
+
+8 Puzzle (NxN)
+
+SimpleJungle
+
+TicTacToe
