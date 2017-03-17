@@ -37,3 +37,6 @@ class Perceptron:
 
     def getWeight(self):
         return self._weight
+    
+    #def dot(self,weight,vector):
+    #   sum( [vector[i][0]*weight[i] for i in range(len(weight))] )
